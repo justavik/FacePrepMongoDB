@@ -1,0 +1,253 @@
+// AVIK CHATTERJEE 22BCB0207
+
+// June 15 Eclipse Tasks:
+
+// Task 1:
+
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.bson.Document;
+
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Sorts;
+import com.mongodb.client.model.Filters;
+
+public class Task1 {
+    public static void main(String[] args) {
+
+        MongoClient mongoClient = MongoClients.create("mongodb://localhost:27017");
+
+        MongoDatabase database = mongoClient.getDatabase("Student");
+        MongoCollection<Document> collection = database.getCollection("Student");
+
+        Document doc1 = new Document("first", "Avik")
+                            .append("last", "Chatterjee")
+                            .append("mark", 99)
+                            .append("age", 15);
+
+        Document doc2 = new Document("first", "Kajal")
+                            .append("last", "Chatts")
+                            .append("mark", 27)
+                            .append("age", 50);
+
+        Document doc3 = new Document("first", "Sush")
+                            .append("last", "Chatts")
+                            .append("mark", 99)
+                            .append("age", 88);
+
+        collection.insertMany(List.of(doc1, doc2, doc3));
+
+        Document highestMarkDoc = collection.find().sort(Sorts.descending("mark")).first();
+        if (highestMarkDoc != null) {
+            int highestMark = highestMarkDoc.getInteger("mark");
+
+            List<Document> highestMarkDocs = collection.find(Filters.eq("mark", highestMark)).into(new ArrayList<>());
+
+            System.out.println("Students with the highest marks:");
+            for (Document doc : highestMarkDocs) {
+                String first = doc.getString("first");
+                String last = doc.getString("last");
+                int mark = doc.getInteger("mark");
+                System.out.println(first + " " + last + " with marks = " + mark);
+            }
+        }
+
+        mongoClient.close();
+    }
+}
+
+// Task 2:
+
+import java.util.List;
+import java.util.ArrayList;
+
+import org.bson.Document;
+
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Sorts;
+import com.mongodb.client.model.Filters;
+
+public class Task2 {
+    public static void main(String[] args) {
+
+        MongoClient mongoClient = MongoClients.create("mongodb://localhost:27017");
+
+        MongoDatabase database = mongoClient.getDatabase("Student");
+        MongoCollection<Document> collection = database.getCollection("Student");
+
+        Document doc1 = new Document("name", "Avik")
+                            .append("salary", 25000)
+                            .append("age", 28);
+
+        Document doc2 = new Document("name", "Kajal")
+                            .append("salary", 30000)
+                            .append("age", 48);
+
+        Document doc3 = new Document("name", "Sush")
+                            .append("salary", 15000)
+                            .append("age", 42);
+
+        Document doc4 = new Document("name", "Ved")
+                            .append("salary", 25000)
+                            .append("age", 35);
+
+        Document doc5 = new Document("name", "Kalam")
+                            .append("salary", 30000)
+                            .append("age", 32);
+
+        Document doc6 = new Document("name", "Biden")
+                            .append("salary", 55000)
+                            .append("age", 38);
+
+        collection.insertMany(List.of(doc1, doc2, doc3, doc4, doc5, doc6));
+
+        List<Document> results = collection.find(Filters.and(Filters.gte("age", 30), Filters.lte("age", 40)))
+                                           .sort(Sorts.ascending("salary"))
+                                           .into(new ArrayList<>());
+
+        if (!results.isEmpty()) {
+            int lowestSalary = results.get(0).getInteger("salary");
+
+            for (Document doc : results) {
+                if (doc.getInteger("salary") == lowestSalary) {
+                    String name = doc.getString("name");
+                    int salary = doc.getInteger("salary");
+                    int age = doc.getInteger("age");
+
+                    System.out.println("Person with the lowest salary between ages 30 and 40:");
+                    System.out.println(name + " with salary = " + salary + " and age = " + age);
+                } else 
+                    break;
+            }
+        } else 
+            System.out.println("No persons found between ages 30 and 40.");
+
+        mongoClient.close();
+    }
+}
+
+// June 18 Operator Tasks:
+
+1. Find products that have either "white" or "black" as a color option and are priced below 800.
+
+db.products1.find({
+  price: { $lt: 800 },
+  color: { $in: ["white", "black"] }
+});
+
+2. Find products that do not have "gold" as a color and are priced below 700 or have a storage option of 512GB.
+
+db.products1.find({
+  $and: [
+    { color: { $ne: "gold" } },
+    {
+      $or: [
+        { price: { $lt: 700 } },
+        { storage: 512 }
+      ]
+    }
+  ]
+});
+
+3. Find products that have both a RAM size greater than 8GB and a CPU speed less than 2 GHz, or do not have a storage option of 256GB.
+
+db.products1.find({
+  $or: [
+    {
+      $and: [
+        { "spec.ram": { $gt: 8 } },
+        { "spec.cpu": { $lt: 2.0 } }
+      ]
+    },
+    { storage: { $ne: 256 } }
+  ]
+});
+
+4. Select phones with screen size not greater than 9.5 and RAM not in 4 or 8.
+
+db.products1.find({
+  "spec.screen": { $lte: 9.5 },
+  "spec.ram": { $nin: [4, 8] }
+});
+
+5. Select products with CPU power not less than 2.66 nor more than 3.66.
+
+db.products1.find({
+  "spec.cpu": { $gte: 2.66, $lte: 3.66 }
+});
+
+6. Select products with either white color and storage not less than 128.
+
+db.products1.find({
+  $or: [
+    { color: "white" },
+    { storage: { $gte: 128 } }
+  ]
+});
+
+7. Print the name and date of products whose RAM is neither 4 nor the product price is less than 799.
+
+db.products1.find(
+  {
+    $nor: [
+      { "spec.ram": 4 },
+      { price: { $lt: 799 } }
+    ]
+  },
+  { name: 1, releaseDate: 1 }
+);
+
+8. Print the names of products whose screen is either greater than 7 or color is white.
+
+db.products1.find(
+  {
+    $or: [
+      { "spec.screen": { $gt: 7 } },
+      { color: "white" }
+    ]
+  },
+  { name: 1 }
+);
+
+9. Select products with either blue color and storage not less than 128.
+
+db.products1.find({
+  $and: [
+    { color: "blue" },
+    { storage: { $gte: 128 } }
+  ]
+});
+
+10. Find products with either CPU greater than 2 GHz or RAM is between 4 and 12 GB.
+
+db.products1.find({
+  $or: [
+    { "spec.cpu": { $gt: 2.0 } },
+    { "spec.ram": { $gte: 4, $lte: 12 } }
+  ]
+});
+
+11. Find products with neither price is between 600 and 900 nor is it white or black.
+
+db.products1.find({
+  $nor: [
+    { price: { $gte: 600, $lte: 900 } },
+    { color: { $in: ["white", "black"] } }
+  ]
+});
+
+12. Find products where price exists and there is no gray in the colours.
+
+db.products1.find({
+  price: { $exists: true },
+  color: { $ne: "gray" }
+});
