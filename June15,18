@@ -2,8 +2,7 @@
 
 // June 15 Eclipse Tasks:
 
-// Task 1:
-
+// Task 1: Find the Students with the highest marks
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +60,7 @@ public class Task1 {
     }
 }
 
-// Task 2:
+// Task 2: Find the employees with the lowest salary
 
 import java.util.List;
 import java.util.ArrayList;
