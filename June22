@@ -1,0 +1,236 @@
+// AVIK CHATTERJEE 22BCB0207
+
+// JUNE 19 QUERY, LIMIT, SORT, UPDATE TASKS
+
+1. 
+
+// JUNE 22: INDEXES PRACTICE DOCUMENT
+
+use vit1
+switched to db vit1
+db.products.insertMany([
+    { "_id" : 1, "name" : "xPhone", "price" : 799, "releaseDate" : ISODate("2011-05-14T00:00:00Z"), "spec" : { "ram" : 4, "screen" : 6.5, "cpu" : 2.66 }, "color" : [ "white", "black" ], "storage" : [ 64, 128, 256 ] },
+    { "_id" : 2, "name" : "xTablet", "price" : 899, "releaseDate" : ISODate("2011-09-01T00:00:00Z"), "spec" : { "ram" : 16, "screen" : 9.5, "cpu" : 3.66 }, "color" : [ "white", "black", "purple" ], "storage" : [ 128, 256, 512 ] },
+    { "_id" : 3, "name" : "SmartTablet", "price" : 899, "releaseDate" : ISODate("2015-01-14T00:00:00Z"), "spec" : { "ram" : 12, "screen" : 9.7, "cpu" : 3.66 }, "color" : [ "blue" ], "storage" : [ 16, 64, 128 ] },
+    { "_id" : 4, "name" : "SmartPad", "price" : 699, "releaseDate" : ISODate("2020-05-14T00:00:00Z"), "spec" : { "ram" : 8, "screen" : 9.7, "cpu" : 1.66 }, "color" : [ "white", "orange", "gold", "gray" ], "storage" : [ 128, 256, 1024 ] },
+    { "_id" : 5, "name" : "SmartPhone", "price" : 599, "releaseDate" : ISODate("2022-09-14T00:00:00Z"), "spec" : { "ram" : 4, "screen" : 9.7, "cpu" : 1.66 }, "color" : [ "white", "orange", "gold", "gray" ], "storage" : [ 128, 256 ] },
+    { "_id" : 6, "name" : "xWidget", "spec" : { "ram" : 64, "screen" : 9.7, "cpu" : 3.66 }, "color" : [ "black" ], "storage" : [ 1024 ] },
+    { "_id" : 7, "name" : "xReader", "price" : null, "spec" : { "ram" : 64, "screen" : 6.7, "cpu" : 3.66 }, "color" : [ "black", "white" ], "storage" : [ 128 ] }
+])
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': 1,
+    '1': 2,
+    '2': 3,
+    '3': 4,
+    '4': 5,
+    '5': 6,
+    '6': 7
+  }
+}
+db.products.createIndex({price:1})
+price_1
+db.products.dropIndex({price:1})
+{ nIndexesWas: 2, ok: 1 }
+db.products.getIndexes()
+[ { v: 2, key: { _id: 1 }, name: '_id_' } ]
+db.products.createIndex({name: -1, price: 1})
+name_-1_price_1
+db.products.createIndex({"spec.ram": 1, "spec.cpu": -1})
+spec.ram_1_spec.cpu_-1
+db.blog.insertMany( [
+   {
+     _id: 1,
+     content: "This morning I had a cup of coffee.",
+     about: "beverage",
+     keywords: [ "coffee" ]
+   },
+   {
+     _id: 2,
+     content: "Who likes chocolate ice cream for dessert?",
+     about: "food",
+     keywords: [ "poll" ]
+   },
+   {
+     _id: 3,
+     content: "My favorite flavors are strawberry and coffee",
+     about: "ice cream",
+     keywords: [ "food", "dessert" ]
+   }
+] )
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': 1,
+    '1': 2,
+    '2': 3
+  }
+}
+db.blog1.insertMany( [
+   {
+     _id: 1,
+     content: "This morning I had a cup of coffee.",
+     about: {author : "Jayanth", writer : "Jayanth Vellingiri"}
+     keywords: [ "coffee" ]
+   },
+   {
+     _id: 2,
+     content: "Who likes chocolate ice cream for dessert?",
+     about: {author:"Karthik", writer:"Karthik Raj"}
+     keywords: [ "poll" ]
+   },
+   {
+     _id: 3,
+     content: "My favorite flavors are strawberry and coffee",
+     about: {author:"Praveen", writer:"praveen kumar"}
+     keywords: [ "food", "dessert" ]
+   }
+] )
+SyntaxError: Unexpected token, expected "," (6:5)
+
+  4 |      content: "This morning I had a cup of coffee.",
+  5 |      about: {author : "Jayanth", writer : "Jayanth Vellingiri"}
+> 6 |      keywords: [ "coffee" ]
+    |      ^
+  7 |    },
+  8 |    {
+  9 |      _id: 2,
+db.blog1.insertMany( [
+   {
+     _id: 1,
+     content: "This morning I had a cup of coffee.",
+     about: {author : "Jayanth", writer : "Jayanth Vellingiri"},
+     keywords: [ "coffee" ]
+   },
+   {
+     _id: 2,
+     content: "Who likes chocolate ice cream for dessert?",
+     about: {author:"Karthik", writer:"Karthik Raj"},
+     keywords: [ "poll" ]
+   },
+   {
+     _id: 3,
+     content: "My favorite flavors are strawberry and coffee",
+     about: {author:"Praveen", writer:"praveen kumar"},
+     keywords: [ "food", "dessert" ]
+   }
+] )
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': 1,
+    '1': 2,
+    '2': 3
+  }
+}
+db.blog1.createIndex({"content":"text"})
+content_text
+db.blog1.getIndexes()
+[
+  { v: 2, key: { _id: 1 }, name: '_id_' },
+  {
+    v: 2,
+    key: { _fts: 'text', _ftsx: 1 },
+    name: 'content_text',
+    weights: { content: 1 },
+    default_language: 'english',
+    language_override: 'language',
+    textIndexVersion: 3
+  }
+]
+db.blog.find(
+   {
+      $text: { $search: "cream" }
+   }
+)
+MongoServerError[IndexNotFound]: text index required for $text query
+db.blog1.find(
+   {
+      $text: { $search: "cream" }
+   }
+)
+{
+  _id: 2,
+  content: 'Who likes chocolate ice cream for dessert?',
+  about: {
+    author: 'Karthik',
+    writer: 'Karthik Raj'
+  },
+  keywords: [
+    'poll'
+  ]
+}
+db.blog1.createIndex({"$**":"text"})
+MongoServerError[IndexOptionsConflict]: An equivalent index already exists with a different name and options. Requested index: { v: 2, key: { _fts: "text", _ftsx: 1 }, name: "$**_text", weights: { $**: 1 }, default_language: "english", language_override: "language", textIndexVersion: 3 }, existing index: { v: 2, key: { _fts: "text", _ftsx: 1 }, name: "content_text", weights: { content: 1 }, default_language: "english", language_override: "language", textIndexVersion: 3 }
+db.blog1.dropIndex("content_text")
+{ nIndexesWas: 2, ok: 1 }
+db.blog1.createIndex({"$**":"text"})
+$**_text
+db.blog1.find(
+   {
+      $text: { $search: "Raj" }
+   }
+)
+{
+  _id: 2,
+  content: 'Who likes chocolate ice cream for dessert?',
+  about: {
+    author: 'Karthik',
+    writer: 'Karthik Raj'
+  },
+  keywords: [
+    'poll'
+  ]
+}
+db.blog1.find(
+   {
+      $text: { $search: "Raj coffee" }
+   }
+)
+{
+  _id: 1,
+  content: 'This morning I had a cup of coffee.',
+  about: {
+    author: 'Jayanth',
+    writer: 'Jayanth Vellingiri'
+  },
+  keywords: [
+    'coffee'
+  ]
+}
+{
+  _id: 3,
+  content: 'My favorite flavors are strawberry and coffee',
+  about: {
+    author: 'Praveen',
+    writer: 'praveen kumar'
+  },
+  keywords: [
+    'food',
+    'dessert'
+  ]
+}
+{
+  _id: 2,
+  content: 'Who likes chocolate ice cream for dessert?',
+  about: {
+    author: 'Karthik',
+    writer: 'Karthik Raj'
+  },
+  keywords: [
+    'poll'
+  ]
+}
+db.blog1.find({$text:{$search:"\"chocolate ice cream\""}})
+{
+  _id: 2,
+  content: 'Who likes chocolate ice cream for dessert?',
+  about: {
+    author: 'Karthik',
+    writer: 'Karthik Raj'
+  },
+  keywords: [
+    'poll'
+  ]
+}
