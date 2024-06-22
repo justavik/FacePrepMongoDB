@@ -2,7 +2,64 @@
 
 // JUNE 19 QUERY, LIMIT, SORT, UPDATE TASKS
 
-1. 
+// JUNE 20 AGGREGATION TASKS
+
+1. Identify the total quantity sold for each item, but only include those items where the maximum price recorded is at least $25. Then, sort the results by the total quantity in ascending order and limit the result to 1 item.
+
+db.sales.aggregate([
+  { $group: { _id: "$item", totalQuantity: { $sum: "$quantity" }, maxPrice: { $max: "$price" } } },
+  { $match: { maxPrice: { $gte: 25 } } },
+  { $sort: { totalQuantity: 1 } },
+  { $limit: 1 }
+])
+
+2. Find the average quantity sold for each item where the price is greater than $10, then sort these averages in descending order, skip the first result, and limit the output to 2 items.
+
+db.sales.aggregate([
+  { $match: { price: { $gt: 10 } } },
+  { $group: { _id: "$item", averageQuantity: { $avg: "$quantity" } } },
+  { $sort: { averageQuantity: -1 } },
+  { $skip: 1 },
+  { $limit: 2 }
+])
+
+3. Calculate the total and average quantity sold for each item where the size is "Grande", then sort the results first by the total quantity in descending order and then by the average quantity in descending order. Skip the first result and limit the output to 2 items.
+
+db.sales.aggregate([
+  { $match: { size: "Grande" } },
+  { $group: { _id: "$item", totalQuantity: { $sum: "$quantity" }, averageQuantity: { $avg: "$quantity" } } },
+  { $sort: { totalQuantity: -1, averageQuantity: -1 } },
+  { $skip: 1 },
+  { $limit: 2 }
+])
+
+4. Calculate the average and total price of products that are either a "SmartTablet" or have a price less than $700. Sort the results by average price in descending order.
+
+db.products.aggregate([
+  { $match: { $or: [{ name: "SmartTablet" }, { price: { $lt: 700 } }] } },
+  { $group: { _id: null, totalPrice: { $sum: "$price" }, averagePrice: { $avg: "$price" } } },
+  { $sort: { averagePrice: -1 } }
+])
+
+5. 
+
+db.products.aggregate([
+  { $match: { releaseDate: { $gt: ISODate("2015-01-01") }, "spec.ram": { $gt: 8 } } },
+  { $project: { _id: 0, name: "$name", price: "$price" } },
+  { $sort: { price: -1 } },
+  { $limit: 3 }
+])
+
+6. Calculate the average screen size of all products that have storage options of either 128GB or 256GB. Sort by descending order and only show second and third largest values.
+
+db.products.aggregate([
+  { $match: { storage: { $in: [128, 256] } } },
+  { $group: { _id: null, averageScreenSize: { $avg: "$spec.screen" } } },
+  { $sort: { averageScreenSize: -1 } },
+  { $skip: 1 },
+  { $limit: 2 }
+])
+
 
 // JUNE 22: INDEXES PRACTICE DOCUMENT
 
