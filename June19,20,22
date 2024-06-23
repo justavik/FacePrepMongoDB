@@ -2,6 +2,51 @@
 
 // JUNE 19 QUERY, LIMIT, SORT, UPDATE TASKS
 
+1. Update products where the ram is less than 8 gb and the screen is greater than 7 inches, setting their price to 500.
+
+db.products.updateMany(
+  { "spec.ram": { $lt: 8 }, "spec.screen": { $gt: 7 } },
+  { $set: { price: 500 } }
+)
+
+2. Update products that have orange as one of their color options, setting their price to the value of the first storage option.
+
+db.products.updateMany(
+  { color: "orange" },
+  { $set: { price: "$storage.0" } }
+)
+
+3. Find prducts where both 128 and 256 gb options exist as storage options. Print their name and price.
+
+db.products.find(
+  { storage: { $all: [128, 256] } },
+  { name: 1, price: 1 }
+)
+
+4. Update price of 'xReader' to 199 and display all documents in ascending order of price.
+
+db.products.updateOne(
+  { name: "xReader" }, 
+  { $set: { price: 199 } }
+);
+db.products.find().sort({ price: 1 });
+
+5. Find the top 2 products with the highest cpu speed and where the price is between 600 and 1000. 
+
+db.products.aggregate([
+  { $match: { price: { $gte: 600, $lte: 1000 } } },
+  { $sort: { "spec.cpu": -1 } },
+  { $limit: 2 }
+])
+
+6. Find all products where the price field exists and is a number, the cpu speed is greater than 2 GHz and the storage array contains the value 512.
+
+db.products.find({
+  price: { $exists: true, $type: "number" },
+  "spec.cpu": { $gt: 2 }, 
+  storage: 512 
+})
+
 // JUNE 20 AGGREGATION TASKS
 
 1. Identify the total quantity sold for each item, but only include those items where the maximum price recorded is at least $25. Then, sort the results by the total quantity in ascending order and limit the result to 1 item.
@@ -41,11 +86,11 @@ db.products.aggregate([
   { $sort: { averagePrice: -1 } }
 ])
 
-5. 
+5. Find the sum of all storage options in products released after 1st Jan, 2015 having ram greater than 8 gb, then sort the products obtained by price and limit the view to 3 products.
 
 db.products.aggregate([
   { $match: { releaseDate: { $gt: ISODate("2015-01-01") }, "spec.ram": { $gt: 8 } } },
-  { $project: { _id: 0, name: "$name", price: "$price" } },
+  { $group: { _id: null, sumStorage: { $sum: "$storage" },
   { $sort: { price: -1 } },
   { $limit: 3 }
 ])
@@ -59,7 +104,6 @@ db.products.aggregate([
   { $skip: 1 },
   { $limit: 2 }
 ])
-
 
 // JUNE 22: INDEXES PRACTICE DOCUMENT
 
